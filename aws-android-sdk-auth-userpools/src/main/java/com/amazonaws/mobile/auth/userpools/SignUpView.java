@@ -48,6 +48,10 @@ import static com.amazonaws.mobile.auth.userpools.UserPoolFormConstants.FORM_BUT
 import static com.amazonaws.mobile.auth.userpools.UserPoolFormConstants.FORM_SIDE_MARGIN_RATIO;
 import static com.amazonaws.mobile.auth.userpools.UserPoolFormConstants.MAX_FORM_WIDTH_IN_PIXELS;
 
+import io.michaelrocks.libphonenumber.android.NumberParseException;
+import io.michaelrocks.libphonenumber.android.PhoneNumberUtil;
+import io.michaelrocks.libphonenumber.android.Phonenumber;
+
 /**
  * The view that handles user sign-up for Cognito User Pools.
  */
@@ -71,6 +75,8 @@ public class SignUpView extends LinearLayout {
     private boolean fullScreenBackgroundColor;
     private Typeface typeFace;
     private int backgroundColor;
+
+    private PhoneNumberUtil util = null;
 
     /**
      * Constructs the SignUp View.
@@ -230,6 +236,17 @@ public class SignUpView extends LinearLayout {
      * @return the user's phone number entered in the form.
      */
     public String getPhone() {
+        if (util == null) {
+            util = PhoneNumberUtil.createInstance(this.getContext());
+        }
+
+        try {
+            final Phonenumber.PhoneNumber phoneNumber = util.parse(phoneEditText.getText().toString(), "US");
+            return util.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.E164);
+        } catch (NumberParseException e) {
+            e.printStackTrace();
+        }
+
         return phoneEditText.getText().toString();
     }
 }
